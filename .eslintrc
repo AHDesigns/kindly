@@ -1,0 +1,15 @@
+{
+  "extends": [
+    "oclif",
+    "oclif-typescript",
+    "prettier",
+    "plugin:prettier/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "prettier/@typescript-eslint"
+  ],
+  "rules": {
+    "no-console": "error",
+    "@typescript-eslint/explicit-module-boundary-types": "error"
+  },
+  "plugins": ["prettier"]
+}
