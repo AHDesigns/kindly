@@ -1,12 +1,12 @@
 {
-  "name": "my",
+  "name": "kindly",
   "description": "my configuration helpers",
   "version": "0.0.0",
   "author": "Adam Hall @AHDesigns",
   "bin": {
-    "my": "./bin/run"
+    "kindly": "./bin/run"
   },
-  "bugs": "https://github.com/AHDesigns/my/issues",
+  "bugs": "https://github.com/AHDesigns/kindly/issues",
   "dependencies": {
     "@oclif/command": "^1",
     "@oclif/config": "^1",
@@ -15,14 +15,17 @@
   },
   "devDependencies": {
     "@oclif/dev-cli": "^1",
+    "@types/jest": "^26.0.15",
     "@types/node": "^10",
     "eslint": "^5.13",
     "eslint-config-oclif": "^3.1",
     "eslint-config-oclif-typescript": "^0.1",
     "eslint-config-prettier": "^6.15.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "prettier": "^2.1.2",
     "globby": "^10",
+    "jest": "^26.6.3",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.4.4",
     "ts-node": "^8",
     "typescript": "^3.3"
   },
@@ -35,7 +38,7 @@
     "/npm-shrinkwrap.json",
     "/oclif.manifest.json"
   ],
-  "homepage": "https://github.com/AHDesigns/my",
+  "homepage": "https://github.com/AHDesigns/kindly",
   "keywords": [
     "oclif"
   ],
@@ -43,18 +46,18 @@
   "main": "lib/index.js",
   "oclif": {
     "commands": "./lib/commands",
-    "bin": "my",
+    "bin": "kindly",
     "plugins": [
       "@oclif/plugin-help"
     ]
   },
-  "repository": "AHDesigns/my",
+  "repository": "AHDesigns/kindly",
   "scripts": {
     "postpack": "rm -f oclif.manifest.json",
-    "posttest": "eslint . --ext .ts --config .eslintrc",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
-    "test": "echo NO TESTS",
+    "test": "jest",
     "lint": "eslint --ext ts ./src",
+    "start": "./bin/run",
     "version": "oclif-dev readme && git add README.md"
   },
   "types": "lib/index.d.ts"
