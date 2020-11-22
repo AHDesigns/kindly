@@ -1,31 +1,12 @@
-import { Command, flags } from '@oclif/command';
+import { Command } from '@oclif/command';
 
 export default class LinkDotfiles extends Command {
-  static description = 'describe the command here';
+  static description =
+    'link all files and folders from [src] to [target]. See "configure --help" for details on [src] and [target]';
 
-  static examples = [
-    `$ kindly hello
-hello world from ./src/hello.ts!
-`,
-  ];
-
-  static flags = {
-    help: flags.help({ char: 'h' }),
-    // flag with a value (-n, --name=VALUE)
-    name: flags.string({ char: 'n', description: 'name to print' }),
-    // flag with no value (-f, --force)
-    force: flags.boolean({ char: 'f' }),
-  };
-
-  static args = [{ name: 'file' }];
+  static examples = [`$ kindly link-dotfiles`];
 
   async run(): Promise<void> {
-    const { args, flags } = this.parse(LinkDotfiles);
-
-    const name = flags.name ?? 'world';
-    this.log(`hello ${name} from ./src/commands/hello.ts`);
-    if (args.file && flags.force) {
-      this.log(`you input --force and --file: ${args.file}`);
-    }
+    this.log('Done');
   }
 }
