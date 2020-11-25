@@ -1,7 +1,16 @@
 import { IConfig } from '@oclif/config';
 import LinkDotfiles from './link-dotfiles';
+import exec from '../utils/exec';
 
 describe('LinkDotfiles', () => {
+  beforeAll(async () => {
+    await copyFixturesToCleanTempFolder();
+  });
+
+  afterAll(async () => {
+    await cleanupAllCreatedFiles();
+  });
+
   beforeEach(async () => {
     const greeter = new LinkDotfiles([], {} as IConfig);
     await greeter.run();
@@ -33,3 +42,14 @@ describe('LinkDotfiles', () => {
     });
   });
 });
+
+async function copyFixturesToCleanTempFolder(): Promise<void> {
+  await exec('rm -rf tmp');
+  // -a copies everything as is, links updated at ect
+  // -r recursive
+  await exec('cp -ar fixtures/link-dotfiles tmp');
+}
+
+async function cleanupAllCreatedFiles(): Promise<void> {
+  await exec('rm -rf tmp');
+}
