@@ -1,6 +1,6 @@
 import { exec as execProcess } from 'child_process';
 
-export default async function exec(cmd: string): Promise<void> {
+export default async function exec(cmd: string): Promise<string> {
   return new Promise((resolve, reject) => {
     execProcess(cmd, (error, stdout, stderr) => {
       if (error) {
@@ -9,7 +9,7 @@ export default async function exec(cmd: string): Promise<void> {
         process.stderr.write(`stderr: ${stderr}`);
         reject();
       } else {
-        resolve();
+        resolve(stdout);
       }
     });
   });
