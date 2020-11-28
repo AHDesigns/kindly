@@ -7,7 +7,7 @@ import {
   Dirent,
 } from 'fs-extra';
 import { join } from 'path';
-import { not } from '../utils/fns';
+import { collect, unless, flatten } from '../utils/fns';
 
 export default class LinkDotfiles extends Command {
   static description =
@@ -19,7 +19,7 @@ export default class LinkDotfiles extends Command {
     const src = join(process.cwd(), 'tmp');
     const target = join(process.cwd(), 'target');
     const res = await processFolder(target, src)();
-    this.log(JSON.stringify(res, null, 2));
+    // this.log(JSON.stringify(res, null, 2));
     this.log('Done');
   }
 }
@@ -33,11 +33,12 @@ function processFolder(targetRoot: string, srcRoot: string) {
 
     return readdir(src, { withFileTypes: true })
       .then(
-        forEach(
+        collect(
           unless(matches(/ignore/)),
           match([
-            [isFile, linkFile(target, src)],
-            [isDir, processFolder(target, src)], // src/b
+            [(f: Dirent) => f.isFile(), linkFile(target, src)],
+            [(f: Dirent) => f.isDirectory(), processFolder(target, src)],
+            [(f: Dirent) => f.isSymbolicLink(), linkFile(target, src)],
           ]),
         ),
       )
@@ -45,18 +46,8 @@ function processFolder(targetRoot: string, srcRoot: string) {
   };
 }
 
-function flatten<T>(args: T[][]): T[] {
-  return args.reduce(
-    (flattened, item) => item.reduce((p, c) => p.concat(c), flattened),
-    [],
-  );
-}
-
-type FilePredicate = (dirent: Dirent) => boolean;
-type FileHandler = (dirent: Dirent) => Promise<string[]>;
-
 function linkFile(target: string, src: string) {
-  return async (dirent: Dirent): Promise<string[]> => {
+  const processFile: Handler<Dirent, Promise<string[]>> = async (dirent) => {
     const pathTo = (path: string): string => join(path, dirent.name);
     if (await pathExists(pathTo(target))) {
       return [
@@ -68,40 +59,30 @@ function linkFile(target: string, src: string) {
     await ensureSymlink(pathTo(src), pathTo(target));
     return [`✔️ file "${pathTo(target)}" linked`];
   };
+
+  return processFile;
 }
 
-function isFile(dirent: Dirent): boolean {
-  return true;
+interface Predicate<T> {
+  (t: T): boolean;
 }
-function isDir(dirent: Dirent): boolean {
-  return true;
+interface Handler<T, Y> {
+  (t: T): Y;
 }
 
-function match(branches: [FilePredicate, FileHandler][]) {
-  return async (dirent: Dirent): Promise<string[]> => {
+function match<Y, Z>(branches: [Predicate<Y>, Handler<Y, Promise<Z>>][]) {
+  return async (dirent: Y): Promise<Z> => {
     for await (const [predicate, handler] of branches) {
       if (predicate(dirent)) {
         return handler(dirent);
       }
     }
-    throw new Error('pop');
+    throw new Error('no match');
   };
 }
 
 function matches(pattern: RegExp) {
   return (str: Dirent): boolean => {
     return pattern.test(str.name);
-  };
-}
-
-function forEach<T, S>(predicate: (t: T) => boolean, fn: (t: T) => Promise<S>) {
-  return async (t: T[]): Promise<S[]> => {
-    return Promise.all(t.filter(predicate).map(fn));
-  };
-}
-
-function unless<T>(predicate: (t: T) => boolean) {
-  return (t: T): boolean => {
-    return not(predicate(t));
   };
 }

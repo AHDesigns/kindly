@@ -10,7 +10,8 @@
   "rules": {
     "no-console": "error",
     "@typescript-eslint/explicit-module-boundary-types": "error",
-    "@typescript-eslint/no-use-before-define": "off"
+    "@typescript-eslint/no-use-before-define": "off",
+    "@typescript-eslint/explicit-function-return-type": "off"
   },
   "plugins": ["prettier"]
 }

@@ -35,7 +35,7 @@ describe('LinkDotfiles', () => {
       });
 
       describe('when file exists in target', () => {
-        it.only('does not link the file', () => {
+        it('does not link the file', () => {
           expect(
             readFileSync(path('existsAlready.txt'), { encoding: 'utf8' }),
           ).toBe('old file\n');
@@ -47,8 +47,14 @@ describe('LinkDotfiles', () => {
 
     describe('when subject is a folder', () => {
       describe('when folder matches ignore pattern', () => {
-        it.todo('does not copy the folder');
-        it.todo('does not copy any files inside the folder');
+        it('does not copy the folder', () => {
+          expect(pathExistsSync(path('ignoreThisFolder'))).toBe(false);
+        });
+
+        it('does not copy any files inside the folder', () => {
+          expect(pathExistsSync(path('ignoreThisFolder/fileA'))).toBe(false);
+          expect(pathExistsSync(path('folderA/ignore-me.txt'))).toBe(false);
+        });
       });
 
       describe('when the folder exists in target', () => {
@@ -57,7 +63,11 @@ describe('LinkDotfiles', () => {
       });
 
       describe('when the folder does not exist in target', () => {
-        it.todo('symlinks the src folder to the target');
+        it('symlinks the src folder to the target', () => {
+          expect(pathExistsSync(path('folderA/fileA'))).toBe(true);
+          expect(pathExistsSync(path('folderB/fileA'))).toBe(true);
+          expect(pathExistsSync(path('folderB/folderC/fileA'))).toBe(true);
+        });
       });
     });
   });
