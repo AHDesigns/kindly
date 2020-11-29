@@ -192,11 +192,19 @@ describe('LinkDotfiles', () => {
           expect(pathExistsSync(path('folderB/folderC/fileA'))).toBe(true);
         });
 
-        it.todo('does not symlink any files inside the folder');
-        it.todo('adds the folder to linked result');
-        it.todo(
-          'does not add any files inside the folder to the linked result',
-        );
+        it('does not add any files inside the folder to the linked result', () => {
+          const links = [path('folderB/fileA'), path('folderB/folderC/fileA')];
+
+          expect(res.ignored).not.toStrictEqual(expect.arrayContaining(links));
+          expect(res.failed).not.toStrictEqual(expect.arrayContaining(links));
+          expect(res.linked).not.toStrictEqual(expect.arrayContaining(links));
+        });
+
+        it('adds the folder to linked result', () => {
+          const links = [path('folderB')];
+
+          expect(res.linked).toStrictEqual(expect.arrayContaining(links));
+        });
       });
     });
   });
