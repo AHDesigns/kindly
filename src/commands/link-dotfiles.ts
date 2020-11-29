@@ -9,6 +9,7 @@ export default class LinkDotfiles extends Command {
   static examples = [`$ kindly link-dotfiles`];
 
   async run(): Promise<void> {
+    await Promise.resolve();
     // const linkDirection: LinkDirection = {
     //   from: join(process.cwd(), 'tmp'),
     //   to: join(process.cwd(), 'target'),

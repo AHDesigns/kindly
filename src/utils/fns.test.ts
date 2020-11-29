@@ -44,6 +44,10 @@ describe.only('fns', () => {
     });
 
     it('throws an error when there is no match', async () => {
+      function asserIsError(err: unknown): asserts err is Error {
+        if (!(err instanceof Error)) throw new Error('A non error was thrown');
+      }
+
       const spy = jest.fn().mockResolvedValue(null);
 
       let err: Error | null = null;
@@ -52,7 +56,8 @@ describe.only('fns', () => {
           [() => Promise.resolve(false), spy],
           [() => Promise.resolve(false), spy],
         ])('');
-      } catch (error) {
+      } catch (error: unknown) {
+        asserIsError(error);
         err = error;
       }
       expect(err).toEqual(expect.any(Error));

@@ -54,6 +54,7 @@ function ignoreDirEnt({ to }: LinkDirection) {
 function symlinkFolder({ from, to }: LinkDirection) {
   return async (): Promise<LinkedFiles> => {
     await ensureSymlink(from, to);
+
     return linkedFilesFactory({ linked: [to] });
   };
 }
