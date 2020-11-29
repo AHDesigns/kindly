@@ -13,7 +13,14 @@ export type LinkDirection = {
   to: string;
 };
 
-export default function linkFilesInDirRecursively({ from, to }: LinkDirection) {
+export type LinkOptions = {
+  dryRun?: boolean;
+};
+
+export default function linkFilesInDirRecursively(
+  { from, to }: LinkDirection,
+  options: LinkOptions,
+) {
   return async (path?: Dirent): Promise<LinkedFiles> => {
     const linkDirection: LinkDirection = {
       from: join(from, path?.name || ''),
@@ -22,21 +29,21 @@ export default function linkFilesInDirRecursively({ from, to }: LinkDirection) {
 
     return cond([
       [matches(/ignore/), ignoreDirEnt(linkDirection)],
-      [pathExists, processFolder(linkDirection)],
-      [always, symlinkFolder(linkDirection)],
+      [pathExists, processFolder(linkDirection, options)],
+      [always, symlinkFolder(linkDirection, options)],
     ])(linkDirection.to);
   };
 }
 
-function processFolder(linkDirection: LinkDirection) {
+function processFolder(linkDirection: LinkDirection, options: LinkOptions) {
   return (): Promise<LinkedFiles> =>
     readdir(linkDirection.from, { withFileTypes: true })
       .then(
         map(
           cond([
             [matches(/ignore/), ignoreDirEnt(linkDirection)],
-            [isFileOrSymlink, linkFile(linkDirection)],
-            [isFolder, linkFilesInDirRecursively(linkDirection)],
+            [isFileOrSymlink, linkFile(linkDirection, options)],
+            [isFolder, linkFilesInDirRecursively(linkDirection, options)],
           ]),
         ),
       )
@@ -51,21 +58,21 @@ function ignoreDirEnt({ to }: LinkDirection) {
   };
 }
 
-function symlinkFolder({ from, to }: LinkDirection) {
+function symlinkFolder({ from, to }: LinkDirection, options: LinkOptions) {
   return async (): Promise<LinkedFiles> => {
-    await ensureSymlink(from, to);
+    if (!options.dryRun) await ensureSymlink(from, to);
 
     return linkedFilesFactory({ linked: [to] });
   };
 }
 
-function linkFile({ to, from }: LinkDirection) {
+function linkFile({ to, from }: LinkDirection, options: LinkOptions) {
   return async (dirent: Dirent): Promise<LinkedFiles> => {
     if (await pathExists(path(to))) {
       return linkedFilesFactory({ failed: [path(to)] });
     }
 
-    await ensureSymlink(path(from), path(to));
+    if (!options.dryRun) await ensureSymlink(path(from), path(to));
 
     return linkedFilesFactory({ linked: [path(to)] });
 

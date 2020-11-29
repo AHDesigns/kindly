@@ -1,4 +1,7 @@
-import linkFilesInDirRecursively, { LinkDirection } from './link-files';
+import linkFilesInDirRecursively, {
+  LinkDirection,
+  LinkOptions,
+} from './link-files';
 import { LinkedFiles } from './linked-files';
 import { pathExistsSync, readFileSync, lstatSync } from 'fs-extra';
 import { join } from 'path';
@@ -8,6 +11,7 @@ describe('LinkDotfiles', () => {
   let res: LinkedFiles;
   let from = 'tmp';
   let to = 'target';
+  let options: LinkOptions = {};
 
   beforeEach(async () => {
     await copyFixturesToCleanTempFolder();
@@ -16,7 +20,7 @@ describe('LinkDotfiles', () => {
       from: join(process.cwd(), from),
       to: join(process.cwd(), to),
     };
-    res = await linkFilesInDirRecursively(linkDirection)();
+    res = await linkFilesInDirRecursively(linkDirection, options)();
   });
 
   afterEach(async () => {
@@ -25,10 +29,45 @@ describe('LinkDotfiles', () => {
 
   const path = (pathLike: string): string => join(process.cwd(), to, pathLike);
 
+  describe('when told to do a dry run', () => {
+    beforeAll(() => {
+      from = 'tmp';
+      to = 'target';
+      options = {
+        dryRun: true,
+      };
+    });
+
+    it('does not create any files or links', () => {
+      expect(pathExistsSync(path('fileA.txt'))).toBe(false);
+      expect(pathExistsSync(path('fileB.txt'))).toBe(false);
+      expect(pathExistsSync(path('folderA/fileA'))).toBe(false);
+    });
+
+    it('populates the result', () => {
+      expect(res.failed).toEqual(
+        expect.arrayContaining([path('existsAlready.txt')]),
+      );
+      expect(res.linked).toEqual(
+        expect.arrayContaining([
+          path('fileA.txt'),
+          path('fileB.txt'),
+          path('folderA/fileA'),
+        ]),
+      );
+      expect(res.ignored).toEqual(
+        expect.arrayContaining([path('ignore-me.txt')]),
+      );
+    });
+  });
+
   describe('when passed a target that matches ignore pattern', () => {
     beforeAll(() => {
       from = 'tmp';
       to = 'ignore';
+      options = {
+        dryRun: false,
+      };
     });
 
     it('does not create it or symlink it', () => {
@@ -45,6 +84,9 @@ describe('LinkDotfiles', () => {
     beforeAll(() => {
       from = 'tmp';
       to = 'target';
+      options = {
+        dryRun: false,
+      };
     });
 
     describe('when subject is a file', () => {
