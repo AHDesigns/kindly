@@ -19,7 +19,7 @@ $ npm install -g @ahdesigns/kindly
 $ kindly COMMAND
 running command...
 $ kindly (-v|--version|version)
-@ahdesigns/kindly/0.0.2 darwin-x64 node-v14.15.1
+@ahdesigns/kindly/0.0.3 darwin-x64 node-v14.15.1
 $ kindly --help [COMMAND]
 USAGE
   $ kindly COMMAND
@@ -56,5 +56,5 @@ EXAMPLE
   $ kindly link-dotfiles
 ```
 
-_See code: [src/commands/link-dotfiles.ts](https://github.com/AHDesigns/kindly/blob/v0.0.2/src/commands/link-dotfiles.ts)_
+_See code: [src/commands/link-dotfiles.ts](https://github.com/AHDesigns/kindly/blob/v0.0.3/src/commands/link-dotfiles.ts)_
 <!-- commandsstop -->
