@@ -192,7 +192,6 @@ describe('LinkDotfiles', () => {
           expect(pathExistsSync(path('folderB/folderC/fileA'))).toBe(true);
         });
 
-        it.todo('does not symlink any files inside the folder');
         it.todo('adds the folder to linked result');
         it.todo(
           'does not add any files inside the folder to the linked result',
