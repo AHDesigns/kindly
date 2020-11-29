@@ -1,7 +1,7 @@
 kindly
 ==
 
-kindly configuration helpers
+*would you kindly... 🔧*
 
 [![oclif](https://img.shields.io/badge/cli-oclif-brightgreen.svg)](https://oclif.io)
 [![Version](https://img.shields.io/npm/v/kindly.svg)](https://npmjs.org/package/my)
