@@ -1,6 +1,6 @@
 import { Command } from '@oclif/command';
-import { join } from 'path';
-import linkFilesInDirRecursively, { LinkDirection } from '../utils/link-files';
+// import { join } from 'path';
+// import linkFilesInDirRecursively, { LinkDirection } from '../utils/link-files';
 
 export default class LinkDotfiles extends Command {
   static description =

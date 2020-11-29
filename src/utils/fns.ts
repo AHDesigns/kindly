@@ -3,12 +3,12 @@ export function not(b: boolean): boolean {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const notP = (fn: (...args: any[]) => Promise<boolean>) => {
+export function notP(fn: (...args: any[]) => Promise<boolean>) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return async (...args: any[]): Promise<boolean> => {
     return !(await fn(...args));
   };
-};
+}
 
 export function map<T, S>(fn: (t: T) => Promise<S>) {
   return async (t: T[]): Promise<S[]> => {

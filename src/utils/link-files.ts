@@ -44,10 +44,10 @@ function processFolder(linkDirection: LinkDirection) {
 }
 
 function ignoreDirEnt({ to }: LinkDirection) {
-  return async (dirent: Dirent | string) => {
+  return (dirent: Dirent | string) => {
     const ignored =
       typeof dirent === 'string' ? [dirent] : [join(to, dirent.name)];
-    return linkedFilesFactory({ ignored });
+    return Promise.resolve(linkedFilesFactory({ ignored }));
   };
 }
 
