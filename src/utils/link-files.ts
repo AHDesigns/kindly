@@ -29,7 +29,7 @@ export default function linkFilesInDirRecursively({ from, to }: LinkDirection) {
 }
 
 function processFolder(linkDirection: LinkDirection) {
-  return () =>
+  return (): Promise<LinkedFiles> =>
     readdir(linkDirection.from, { withFileTypes: true })
       .then(
         map(
@@ -44,7 +44,7 @@ function processFolder(linkDirection: LinkDirection) {
 }
 
 function ignoreDirEnt({ to }: LinkDirection) {
-  return (dirent: Dirent | string) => {
+  return (dirent: Dirent | string): Promise<LinkedFiles> => {
     const ignored =
       typeof dirent === 'string' ? [dirent] : [join(to, dirent.name)];
     return Promise.resolve(linkedFilesFactory({ ignored }));
