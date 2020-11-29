@@ -1,13 +1,11 @@
-import linkFilesInDirRecursively, {
-  LinkedFilesResult,
-  LinkDirection,
-} from './link-files';
+import linkFilesInDirRecursively, { LinkDirection } from './link-files';
+import { LinkedFiles } from './linked-files';
 import { pathExistsSync, readFileSync, lstatSync } from 'fs-extra';
 import { join } from 'path';
 import exec from '../utils/exec';
 
 describe('LinkDotfiles', () => {
-  let res: LinkedFilesResult;
+  let res: LinkedFiles;
   let from = 'tmp';
   let to = 'target';
 

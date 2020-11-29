@@ -27,7 +27,7 @@ export function flatten<T>(args: T[][]): T[] {
   );
 }
 
-export function doWhen<I, O>(
+export function cond<I, O>(
   branches: [(t: I) => Promise<boolean>, (t: I) => Promise<O>][],
 ) {
   return async (input: I): Promise<O> => {
@@ -38,4 +38,8 @@ export function doWhen<I, O>(
     }
     throw new Error('no match');
   };
+}
+
+export async function always(): Promise<boolean> {
+  return Promise.resolve(true);
 }

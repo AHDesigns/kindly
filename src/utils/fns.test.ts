@@ -1,4 +1,4 @@
-import { not, doWhen } from './fns';
+import { not, cond } from './fns';
 
 describe.only('fns', () => {
   describe('not', () => {
@@ -8,11 +8,11 @@ describe.only('fns', () => {
     });
   });
 
-  describe('doWhen', () => {
+  describe('cond', () => {
     it('invokes an fn where predicate passes', async () => {
       const returnValue = 'some value';
       const spy = jest.fn().mockResolvedValue(returnValue);
-      const fn = doWhen([[() => Promise.resolve(true), spy]]);
+      const fn = cond([[() => Promise.resolve(true), spy]]);
       const res = await fn('');
 
       expect(spy).toHaveBeenCalled();
@@ -24,7 +24,7 @@ describe.only('fns', () => {
       const spy = jest.fn().mockResolvedValue(returnValue);
       const spy2 = jest.fn().mockResolvedValue(returnValue);
 
-      await doWhen([
+      await cond([
         [() => Promise.resolve(false), spy2],
         [() => Promise.resolve(true), spy],
       ])('');
@@ -34,7 +34,7 @@ describe.only('fns', () => {
 
       spy.mockClear();
 
-      await doWhen([
+      await cond([
         [() => Promise.resolve(true), spy2],
         [() => Promise.resolve(false), spy],
       ])('');
@@ -48,7 +48,7 @@ describe.only('fns', () => {
 
       let err: Error | null = null;
       try {
-        await doWhen([
+        await cond([
           [() => Promise.resolve(false), spy],
           [() => Promise.resolve(false), spy],
         ])('');

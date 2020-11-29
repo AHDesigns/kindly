@@ -1,136 +1,76 @@
-import {
-  ensureSymlink,
-  pathExists,
-  readdir,
-  Dirent,
-  access,
-  constants,
-} from 'fs-extra';
+import { ensureSymlink, pathExists, readdir, Dirent } from 'fs-extra';
 import { join } from 'path';
-import { map, doWhen, notP } from '../utils/fns';
+import { map, cond, always } from '../utils/fns';
+import {
+  LinkedFiles,
+  linkedFilesFactory,
+  mergeLinkedFiles,
+} from './linked-files';
+import { isFileOrSymlink, isFolder } from '../utils/fs-helpers';
 
 export type LinkDirection = {
   from: string;
   to: string;
 };
 
-export type LinkedFilesResult = {
-  linked: string[];
-  failed: string[];
-  ignored: string[];
-};
-
 export default function linkFilesInDirRecursively({ from, to }: LinkDirection) {
-  return async (path?: Dirent): Promise<LinkedFilesResult> => {
+  return async (path?: Dirent): Promise<LinkedFiles> => {
     const linkDirection: LinkDirection = {
       from: join(from, path?.name || ''),
       to: join(to, path?.name || ''),
     };
 
-    if (/ignore/.test(linkDirection.to)) {
-      return { linked: [], failed: [], ignored: [linkDirection.to] };
-    }
-
-    return doWhen([
-      [matches(/ignore/), ignore],
-      [notP(folderExists), symlinkFolder(linkDirection)],
-      [folderExists, processFolder],
+    return cond([
+      [matches(/ignore/), ignoreDirEnt(linkDirection)],
+      [pathExists, processFolder(linkDirection)],
+      [always, symlinkFolder(linkDirection)],
     ])(linkDirection.to);
-
-    function processFolder() {
-      return readdir(linkDirection.from, { withFileTypes: true })
-        .then(
-          map(
-            doWhen([
-              [matches(/ignore/), ignoreDirEnt(linkDirection)],
-              [isFileOrSymlink, linkFile(linkDirection)],
-              [isFolder, linkFilesInDirRecursively(linkDirection)],
-            ]),
-          ),
-        )
-        .then(mergeLinkedFilesResults);
-    }
-
-    function ignore(_: string): Promise<LinkedFilesResult> {
-      return Promise.resolve({
-        linked: [],
-        failed: [],
-        ignored: [linkDirection.to],
-      });
-    }
   };
+}
+
+function processFolder(linkDirection: LinkDirection) {
+  return () =>
+    readdir(linkDirection.from, { withFileTypes: true })
+      .then(
+        map(
+          cond([
+            [matches(/ignore/), ignoreDirEnt(linkDirection)],
+            [isFileOrSymlink, linkFile(linkDirection)],
+            [isFolder, linkFilesInDirRecursively(linkDirection)],
+          ]),
+        ),
+      )
+      .then(mergeLinkedFiles);
 }
 
 function ignoreDirEnt({ to }: LinkDirection) {
-  return async (dirent: Dirent) => {
-    return {
-      linked: [],
-      failed: [],
-      ignored: [pathFor(dirent)(to)],
-    };
+  return async (dirent: Dirent | string) => {
+    const ignored =
+      typeof dirent === 'string' ? [dirent] : [join(to, dirent.name)];
+    return linkedFilesFactory({ ignored });
   };
 }
+
 function symlinkFolder({ from, to }: LinkDirection) {
-  return async (): Promise<LinkedFilesResult> => {
+  return async (): Promise<LinkedFiles> => {
     await ensureSymlink(from, to);
-    return {
-      linked: [to],
-      failed: [],
-      ignored: [],
-    };
+    return linkedFilesFactory({ linked: [to] });
   };
-}
-
-async function folderExists(folder: string): Promise<boolean> {
-  try {
-    await access(folder, constants.F_OK);
-    return true;
-  } catch (error) {
-    return false;
-  }
-}
-
-function mergeLinkedFilesResults(
-  linkedFilesResults: LinkedFilesResult[],
-): LinkedFilesResult {
-  const initial: LinkedFilesResult = { failed: [], linked: [], ignored: [] };
-  return linkedFilesResults.reduce(
-    (combined, { failed, linked, ignored }) => ({
-      failed: [...combined.failed, ...failed],
-      linked: [...combined.linked, ...linked],
-      ignored: [...combined.ignored, ...ignored],
-    }),
-    initial,
-  );
-}
-
-function isFileOrSymlink(f: Dirent) {
-  return Promise.resolve(f.isFile() || f.isSymbolicLink());
-}
-
-function isFolder(f: Dirent) {
-  return Promise.resolve(f.isDirectory());
-}
-function pathFor(dirent: Dirent) {
-  return (path: string): string => join(path, dirent.name);
 }
 
 function linkFile({ to, from }: LinkDirection) {
-  return async (dirent: Dirent): Promise<LinkedFilesResult> => {
-    const path = pathFor(dirent);
+  return async (dirent: Dirent): Promise<LinkedFiles> => {
     if (await pathExists(path(to))) {
-      return {
-        linked: [],
-        failed: [path(to)],
-        ignored: [],
-      };
+      return linkedFilesFactory({ failed: [path(to)] });
     }
+
     await ensureSymlink(path(from), path(to));
-    return {
-      linked: [path(to)],
-      failed: [],
-      ignored: [],
-    };
+
+    return linkedFilesFactory({ linked: [path(to)] });
+
+    function path(path: string): string {
+      return join(path, dirent.name);
+    }
   };
 }
 
