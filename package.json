@@ -58,7 +58,9 @@
     "postpack": "rm -f oclif.manifest.json",
     "prepack": "rm -rf lib && tsc -b && oclif-dev manifest && oclif-dev readme",
     "test": "jest",
-    "lint": "eslint --ext ts ./src",
+    "lint:ts": "eslint --ext ts ./src",
+    "lint:tsc": "tsc --noEmit",
+    "lint": "yarn lint:ts && yarn lint:tsc",
     "start": "./bin/run",
     "version": "oclif-dev readme && git add README.md"
   },
