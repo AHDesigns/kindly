@@ -2,7 +2,9 @@ export function not(b: boolean): boolean {
   return !b;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const notP = (fn: (...args: any[]) => Promise<boolean>) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return async (...args: any[]): Promise<boolean> => {
     return !(await fn(...args));
   };
