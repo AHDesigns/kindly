@@ -1,0 +1,23 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`LinkDotfiles when told to do a dry run populates the result 1`] = `
+Object {
+  "failed": Array [
+    "/Users/adam/dev/node/my/target/existsAlready.txt",
+  ],
+  "ignored": Array [
+    "/Users/adam/dev/node/my/target/folderA/ignore-me.txt",
+    "/Users/adam/dev/node/my/target/ignore-me-as-well.txt",
+    "/Users/adam/dev/node/my/target/ignore-me.txt",
+    "/Users/adam/dev/node/my/target/ignoreThisFolder",
+  ],
+  "linked": Array [
+    "/Users/adam/dev/node/my/target/fileA.txt",
+    "/Users/adam/dev/node/my/target/fileB.txt",
+    "/Users/adam/dev/node/my/target/folderA/fileA",
+    "/Users/adam/dev/node/my/target/folderB",
+    "/Users/adam/dev/node/my/target/symlink-toA",
+    "/Users/adam/dev/node/my/target/symlink-toFolderA",
+  ],
+}
+`;
