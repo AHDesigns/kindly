@@ -41,11 +41,23 @@ describe('LinkDotfiles', () => {
     it('does not create any files or links', () => {
       expect(pathExistsSync(path('fileA.txt'))).toBe(false);
       expect(pathExistsSync(path('fileB.txt'))).toBe(false);
-      expect(pathExistsSync(path('folderA/fileA.txt'))).toBe(false);
+      expect(pathExistsSync(path('folderA/fileA'))).toBe(false);
     });
 
     it('populates the result', () => {
-      expect(res).toMatchSnapshot();
+      expect(res.failed).toEqual(
+        expect.arrayContaining([path('existsAlready.txt')]),
+      );
+      expect(res.linked).toEqual(
+        expect.arrayContaining([
+          path('fileA.txt'),
+          path('fileB.txt'),
+          path('folderA/fileA'),
+        ]),
+      );
+      expect(res.ignored).toEqual(
+        expect.arrayContaining([path('ignore-me.txt')]),
+      );
     });
   });
 
