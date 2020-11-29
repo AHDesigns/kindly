@@ -1,12 +1,12 @@
 import { ensureSymlink, pathExists, readdir, Dirent } from 'fs-extra';
 import { join } from 'path';
-import { map, cond, always } from '../utils/fns';
+import { map, cond, always } from './composables';
 import {
   LinkedFiles,
   linkedFilesFactory,
   mergeLinkedFiles,
 } from './linked-files';
-import { isFileOrSymlink, isFolder } from '../utils/fs-helpers';
+import { isFileOrSymlink, isFolder } from './fs-helpers';
 
 export type LinkDirection = {
   from: string;
@@ -29,7 +29,7 @@ export default function linkFilesInDirRecursively({ from, to }: LinkDirection) {
 }
 
 function processFolder(linkDirection: LinkDirection) {
-  return () =>
+  return (): Promise<LinkedFiles> =>
     readdir(linkDirection.from, { withFileTypes: true })
       .then(
         map(
@@ -44,16 +44,17 @@ function processFolder(linkDirection: LinkDirection) {
 }
 
 function ignoreDirEnt({ to }: LinkDirection) {
-  return async (dirent: Dirent | string) => {
+  return (dirent: Dirent | string): Promise<LinkedFiles> => {
     const ignored =
       typeof dirent === 'string' ? [dirent] : [join(to, dirent.name)];
-    return linkedFilesFactory({ ignored });
+    return Promise.resolve(linkedFilesFactory({ ignored }));
   };
 }
 
 function symlinkFolder({ from, to }: LinkDirection) {
   return async (): Promise<LinkedFiles> => {
     await ensureSymlink(from, to);
+
     return linkedFilesFactory({ linked: [to] });
   };
 }

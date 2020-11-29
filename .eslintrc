@@ -1,18 +1,40 @@
 {
+  "env": {
+    "node": true,
+    "es2021": true
+  },
   "extends": [
-    "oclif",
-    "oclif-typescript",
+    "eslint:recommended",
     "prettier",
+    "prettier/@typescript-eslint",
     "plugin:prettier/recommended",
     "plugin:@typescript-eslint/recommended",
-    "prettier/@typescript-eslint"
+    "plugin:@typescript-eslint/recommended-requiring-type-checking"
   ],
+  "parserOptions": {
+    "project": "tsconfig.eslint.json"
+  },
+  "parser": "@typescript-eslint/parser",
   "rules": {
     "no-console": "error",
-    "@typescript-eslint/explicit-module-boundary-types": "error",
+    "unicorn/no-abusive-eslint-disable": "off",
+    "@typescript-eslint/no-unused-vars": "off",
+    "@typescript-eslint/no-unused-params": "off",
     "@typescript-eslint/no-use-before-define": "off",
-    "@typescript-eslint/explicit-function-return-type": "off",
-    "unicorn/no-abusive-eslint-disable": "off"
+    "@typescript-eslint/explicit-function-return-type": "error",
+    "@typescript-eslint/explicit-module-boundary-types": "error"
   },
-  "plugins": ["prettier"]
+  "plugins": [
+    "@typescript-eslint",
+    "prettier"
+  ],
+  "overrides": [
+    {
+      "files": ["src/**/*.test.ts"],
+      "rules": {
+        "@typescript-eslint/explicit-function-return-type": "off"
+      },
+      "env": { "jest": true, "node": true }
+    }
+  ]
 }
