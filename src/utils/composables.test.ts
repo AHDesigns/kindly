@@ -1,13 +1,6 @@
-import { not, cond } from './fns';
+import { cond } from './composables';
 
-describe.only('fns', () => {
-  describe('not', () => {
-    it('negates the boolean value passed to it', () => {
-      expect(not(true)).toBe(false);
-      expect(not(false)).toBe(true);
-    });
-  });
-
+describe.only('composables', () => {
   describe('cond', () => {
     it('invokes an fn where predicate passes', async () => {
       const returnValue = 'some value';

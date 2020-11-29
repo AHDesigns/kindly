@@ -1,12 +1,12 @@
 import { ensureSymlink, pathExists, readdir, Dirent } from 'fs-extra';
 import { join } from 'path';
-import { map, cond, always } from '../utils/fns';
+import { map, cond, always } from './composables';
 import {
   LinkedFiles,
   linkedFilesFactory,
   mergeLinkedFiles,
 } from './linked-files';
-import { isFileOrSymlink, isFolder } from '../utils/fs-helpers';
+import { isFileOrSymlink, isFolder } from './fs-helpers';
 
 export type LinkDirection = {
   from: string;
