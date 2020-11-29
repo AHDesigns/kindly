@@ -15,11 +15,11 @@ kindly configuration helpers
 # Usage
 <!-- usage -->
 ```sh-session
-$ npm install -g kindly
+$ npm install -g @ahdesigns/kindly
 $ kindly COMMAND
 running command...
 $ kindly (-v|--version|version)
-kindly/0.0.0 darwin-x64 node-v14.15.0
+@ahdesigns/kindly/0.0.1 darwin-x64 node-v14.15.1
 $ kindly --help [COMMAND]
 USAGE
   $ kindly COMMAND
@@ -28,26 +28,8 @@ USAGE
 <!-- usagestop -->
 # Commands
 <!-- commands -->
-* [`kindly hello [FILE]`](#kindly-hello-file)
 * [`kindly help [COMMAND]`](#kindly-help-command)
-
-## `kindly hello [FILE]`
-
-```
-USAGE
-  $ kindly hello [FILE]
-
-OPTIONS
-  -f, --force
-  -h, --help       show CLI help
-  -n, --name=name  name to print
-
-EXAMPLE
-  $ kindly hello
-  hello world from ./src/hello.ts!
-```
-
-_See code: [src/commands/hello.ts](https://github.com/AHDesigns/kindly/blob/v0.0.0/src/commands/hello.ts)_
+* [`kindly link-dotfiles`](#kindly-link-dotfiles)
 
 ## `kindly help [COMMAND]`
 
@@ -63,4 +45,16 @@ OPTIONS
 ```
 
 _See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.0/src/commands/help.ts)_
+
+## `kindly link-dotfiles`
+
+```
+USAGE
+  $ kindly link-dotfiles
+
+EXAMPLE
+  $ kindly link-dotfiles
+```
+
+_See code: [src/commands/link-dotfiles.ts](https://github.com/AHDesigns/kindly/blob/v0.0.1/src/commands/link-dotfiles.ts)_
 <!-- commandsstop -->
