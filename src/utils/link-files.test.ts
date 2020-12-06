@@ -2,7 +2,7 @@ import linkFilesInDirRecursively, {
   LinkDirection,
   LinkOptions,
 } from './link-files';
-import { LinkedFiles } from './linked-files';
+import { LinkedFiles, getFileNames } from './linked-files';
 import { pathExistsSync, readFileSync, lstatSync } from 'fs-extra';
 import { join } from 'path';
 import exec from '../utils/exec';
@@ -45,17 +45,17 @@ describe('LinkDotfiles', () => {
     });
 
     it('populates the result', () => {
-      expect(res.failed).toEqual(
+      expect(getFileNames(res.failed)).toEqual(
         expect.arrayContaining([path('existsAlready.txt')]),
       );
-      expect(res.linked).toEqual(
+      expect(getFileNames(res.linked)).toEqual(
         expect.arrayContaining([
           path('fileA.txt'),
           path('fileB.txt'),
           path('folderA/fileA'),
         ]),
       );
-      expect(res.ignored).toEqual(
+      expect(getFileNames(res.ignored)).toEqual(
         expect.arrayContaining([path('ignore-me.txt')]),
       );
     });
@@ -76,7 +76,9 @@ describe('LinkDotfiles', () => {
 
     it('adds it to the ignored result', () => {
       const links = [path('')];
-      expect(res.ignored).toStrictEqual(expect.arrayContaining(links));
+      expect(getFileNames(res.ignored)).toStrictEqual(
+        expect.arrayContaining(links),
+      );
     });
   });
 
@@ -98,7 +100,9 @@ describe('LinkDotfiles', () => {
 
         it('adds the file to the ignored results', () => {
           const links = [path('ignore-me.txt'), path('ignore-me-as-well.txt')];
-          expect(res.ignored).toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.ignored)).toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
       });
 
@@ -111,7 +115,9 @@ describe('LinkDotfiles', () => {
         it('adds the file to linked results', () => {
           const links = [path('fileA.txt'), path('fileB.txt')];
 
-          expect(res.linked).toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.linked)).toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
       });
 
@@ -125,7 +131,9 @@ describe('LinkDotfiles', () => {
         it('adds the file to failed results', () => {
           const links = [path('existsAlready.txt')];
 
-          expect(res.failed).toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.failed)).toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
       });
     });
@@ -141,7 +149,9 @@ describe('LinkDotfiles', () => {
       it('adds the symlink to linked result', () => {
         const links = [path('symlink-toA'), path('symlink-toFolderA')];
 
-        expect(res.linked).toStrictEqual(expect.arrayContaining(links));
+        expect(getFileNames(res.linked)).toStrictEqual(
+          expect.arrayContaining(links),
+        );
       });
     });
 
@@ -159,7 +169,9 @@ describe('LinkDotfiles', () => {
         it('adds the folder to the ignored results', () => {
           const links = [path('ignoreThisFolder')];
 
-          expect(res.ignored).toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.ignored)).toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
       });
 
@@ -176,34 +188,29 @@ describe('LinkDotfiles', () => {
         it('symlinks the files inside the folder', () => {
           expect(pathExistsSync(path('folderA/fileA'))).toBe(true);
         });
-
-        it('does not add the folder to the linked result', () => {
-          const links = [path('folderA')];
-
-          expect(res.failed).not.toStrictEqual(expect.arrayContaining(links));
-          expect(res.linked).not.toStrictEqual(expect.arrayContaining(links));
-        });
       });
 
       describe('when the folder does not exist in target', () => {
-        it('symlinks the src folder to the target', () => {
-          expect(lstatSync(path('folderB')).isSymbolicLink()).toBe(true);
-          expect(pathExistsSync(path('folderB/fileA'))).toBe(true);
-          expect(pathExistsSync(path('folderB/folderC/fileA'))).toBe(true);
-        });
-
         it('does not add any files inside the folder to the linked result', () => {
           const links = [path('folderB/fileA'), path('folderB/folderC/fileA')];
 
-          expect(res.ignored).not.toStrictEqual(expect.arrayContaining(links));
-          expect(res.failed).not.toStrictEqual(expect.arrayContaining(links));
-          expect(res.linked).not.toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.ignored)).not.toStrictEqual(
+            expect.arrayContaining(links),
+          );
+          expect(getFileNames(res.failed)).not.toStrictEqual(
+            expect.arrayContaining(links),
+          );
+          expect(getFileNames(res.linked)).not.toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
 
         it('adds the folder to linked result', () => {
           const links = [path('folderB')];
 
-          expect(res.linked).toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.linked)).toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
       });
     });

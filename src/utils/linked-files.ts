@@ -1,11 +1,19 @@
+export enum FileType {
+  FILE = 'FILE',
+  DIR = 'DIR',
+  LINK = 'LINK',
+}
+
+type FileInfo = { name: string; type: FileType };
+
 export type LinkedFiles = {
-  linked: string[];
-  failed: string[];
-  ignored: string[];
+  linked: FileInfo[];
+  failed: FileInfo[];
+  ignored: FileInfo[];
 };
 
 export function linkedFilesFactory(
-  linkedFilesResult: Partial<LinkedFiles>,
+  linkedFilesResult: Partial<LinkedFiles> = {},
 ): LinkedFiles {
   return {
     linked: linkedFilesResult.linked || [],
@@ -25,4 +33,8 @@ export function mergeLinkedFiles(
     }),
     linkedFilesFactory({}),
   );
+}
+
+export function getFileNames(fileInfos: FileInfo[]): string[] {
+  return fileInfos.map(({ name }) => name);
 }

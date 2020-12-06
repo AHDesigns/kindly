@@ -1,12 +1,19 @@
-import { ensureSymlink, pathExists, readdir, Dirent } from 'fs-extra';
+import {
+  ensureSymlink,
+  pathExists,
+  readdir,
+  Dirent,
+  ensureDir,
+} from 'fs-extra';
 import { join } from 'path';
 import { map, cond, always } from './composables';
 import {
   LinkedFiles,
   linkedFilesFactory,
   mergeLinkedFiles,
+  FileType,
 } from './linked-files';
-import { isFileOrSymlink, isFolder } from './fs-helpers';
+import { isFileOrSymlink, isFolder, getType } from './fs-helpers';
 
 export type LinkDirection = {
   from: string;
@@ -30,7 +37,7 @@ export default function linkFilesInDirRecursively(
     return cond([
       [matches(/ignore/), ignoreDirEnt(linkDirection)],
       [pathExists, processFolder(linkDirection, options)],
-      [always, symlinkFolder(linkDirection, options)],
+      [always, createFolder(linkDirection, options)],
     ])(linkDirection.to);
   };
 }
@@ -53,28 +60,36 @@ function processFolder(linkDirection: LinkDirection, options: LinkOptions) {
 function ignoreDirEnt({ to }: LinkDirection) {
   return (dirent: Dirent | string): Promise<LinkedFiles> => {
     const ignored =
-      typeof dirent === 'string' ? [dirent] : [join(to, dirent.name)];
+      typeof dirent === 'string'
+        ? [{ name: dirent, type: FileType.DIR }]
+        : [{ name: join(to, dirent.name), type: getType(dirent) }];
+
     return Promise.resolve(linkedFilesFactory({ ignored }));
   };
 }
 
-function symlinkFolder({ from, to }: LinkDirection, options: LinkOptions) {
+function createFolder({ to }: LinkDirection, options: LinkOptions) {
   return async (): Promise<LinkedFiles> => {
-    if (!options.dryRun) await ensureSymlink(from, to);
-
-    return linkedFilesFactory({ linked: [to] });
+    if (!options.dryRun) await ensureDir(to);
+    return linkedFilesFactory({
+      linked: [{ name: to, type: FileType.DIR }],
+    });
   };
 }
 
 function linkFile({ to, from }: LinkDirection, options: LinkOptions) {
   return async (dirent: Dirent): Promise<LinkedFiles> => {
     if (await pathExists(path(to))) {
-      return linkedFilesFactory({ failed: [path(to)] });
+      return linkedFilesFactory({
+        failed: [{ name: path(to), type: FileType.FILE }],
+      });
     }
 
     if (!options.dryRun) await ensureSymlink(path(from), path(to));
 
-    return linkedFilesFactory({ linked: [path(to)] });
+    return linkedFilesFactory({
+      linked: [{ name: path(to), type: FileType.FILE }],
+    });
 
     function path(path: string): string {
       return join(path, dirent.name);
