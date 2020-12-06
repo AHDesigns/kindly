@@ -4,7 +4,7 @@ export enum FileType {
   LINK = 'LINK',
 }
 
-type FileInfo = { name: string; type: FileType };
+export type FileInfo = { name: string; type: FileType };
 
 export type LinkedFiles = {
   linked: FileInfo[];
