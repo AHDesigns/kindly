@@ -76,7 +76,9 @@ describe('LinkDotfiles', () => {
 
     it('adds it to the ignored result', () => {
       const links = [path('')];
-      expect(getFileNames(res.ignored)).toStrictEqual(expect.arrayContaining(links));
+      expect(getFileNames(res.ignored)).toStrictEqual(
+        expect.arrayContaining(links),
+      );
     });
   });
 
@@ -98,7 +100,9 @@ describe('LinkDotfiles', () => {
 
         it('adds the file to the ignored results', () => {
           const links = [path('ignore-me.txt'), path('ignore-me-as-well.txt')];
-          expect(getFileNames(res.ignored)).toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.ignored)).toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
       });
 
@@ -111,7 +115,9 @@ describe('LinkDotfiles', () => {
         it('adds the file to linked results', () => {
           const links = [path('fileA.txt'), path('fileB.txt')];
 
-          expect(getFileNames(res.linked)).toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.linked)).toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
       });
 
@@ -125,7 +131,9 @@ describe('LinkDotfiles', () => {
         it('adds the file to failed results', () => {
           const links = [path('existsAlready.txt')];
 
-          expect(getFileNames(res.failed)).toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.failed)).toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
       });
     });
@@ -141,7 +149,9 @@ describe('LinkDotfiles', () => {
       it('adds the symlink to linked result', () => {
         const links = [path('symlink-toA'), path('symlink-toFolderA')];
 
-        expect(getFileNames(res.linked)).toStrictEqual(expect.arrayContaining(links));
+        expect(getFileNames(res.linked)).toStrictEqual(
+          expect.arrayContaining(links),
+        );
       });
     });
 
@@ -159,7 +169,9 @@ describe('LinkDotfiles', () => {
         it('adds the folder to the ignored results', () => {
           const links = [path('ignoreThisFolder')];
 
-          expect(getFileNames(res.ignored)).toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.ignored)).toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
       });
 
@@ -182,15 +194,23 @@ describe('LinkDotfiles', () => {
         it('does not add any files inside the folder to the linked result', () => {
           const links = [path('folderB/fileA'), path('folderB/folderC/fileA')];
 
-          expect(getFileNames(res.ignored)).not.toStrictEqual(expect.arrayContaining(links));
-          expect(getFileNames(res.failed)).not.toStrictEqual(expect.arrayContaining(links));
-          expect(getFileNames(res.linked)).not.toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.ignored)).not.toStrictEqual(
+            expect.arrayContaining(links),
+          );
+          expect(getFileNames(res.failed)).not.toStrictEqual(
+            expect.arrayContaining(links),
+          );
+          expect(getFileNames(res.linked)).not.toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
 
         it('adds the folder to linked result', () => {
           const links = [path('folderB')];
 
-          expect(getFileNames(res.linked)).toStrictEqual(expect.arrayContaining(links));
+          expect(getFileNames(res.linked)).toStrictEqual(
+            expect.arrayContaining(links),
+          );
         });
       });
     });
