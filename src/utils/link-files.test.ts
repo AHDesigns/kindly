@@ -187,6 +187,7 @@ describe('LinkDotfiles', () => {
 
         it('symlinks the files inside the folder', () => {
           expect(pathExistsSync(path('folderA/fileA'))).toBe(true);
+          expect(pathExistsSync(path('folderC/exists/exists/a.t'))).toBe(true);
         });
       });
 
@@ -230,6 +231,8 @@ async function addFoldersAndFilesThatAlreadyExist(): Promise<void> {
 
   await exec('mkdir target/folderA');
   await exec('echo "old file" > target/folderA/existsAlready.txt ');
+
+  await exec('mkdir -p target/folderC/exists/exists');
 }
 
 async function cleanupAllCreatedFiles(): Promise<void> {
