@@ -15,49 +15,45 @@ import {
 } from './linked-files';
 import { isFileOrSymlink, isFolder, getType } from './fs-helpers';
 
-export type LinkDirection = {
+export type LinkOptions = {
   from: string;
   to: string;
-};
-
-export type LinkOptions = {
   dryRun?: boolean;
 };
 
-export default function linkFilesInDirRecursively(
-  { from, to }: LinkDirection,
-  options: LinkOptions,
-) {
+export default function linkFilesInDirRecursively(options: LinkOptions) {
   return async (path?: Dirent): Promise<LinkedFiles> => {
-    const linkDirection: LinkDirection = {
+    const { to, from } = options;
+    const linkDirection: LinkOptions = {
+      dryRun: options.dryRun,
       from: join(from, path?.name || ''),
       to: join(to, path?.name || ''),
     };
 
     return cond([
       [matches(/ignore/), ignoreDirEnt(linkDirection)],
-      [pathExists, processFolder(linkDirection, options)],
-      [always, createFolder(linkDirection, options)],
+      [pathExists, processFolder(linkDirection)],
+      [always, createFolder(linkDirection)],
     ])(linkDirection.to);
   };
 }
 
-function processFolder(linkDirection: LinkDirection, options: LinkOptions) {
+function processFolder(linkDirection: LinkOptions) {
   return (): Promise<LinkedFiles> =>
     readdir(linkDirection.from, { withFileTypes: true })
       .then(
         map(
           cond([
             [matches(/ignore/), ignoreDirEnt(linkDirection)],
-            [isFileOrSymlink, linkFile(linkDirection, options)],
-            [isFolder, linkFilesInDirRecursively(linkDirection, options)],
+            [isFileOrSymlink, linkFile(linkDirection)],
+            [isFolder, linkFilesInDirRecursively(linkDirection)],
           ]),
         ),
       )
       .then(mergeLinkedFiles);
 }
 
-function ignoreDirEnt({ to }: LinkDirection) {
+function ignoreDirEnt({ to }: LinkOptions) {
   return (dirent: Dirent | string): Promise<LinkedFiles> => {
     const ignored =
       typeof dirent === 'string'
@@ -68,16 +64,16 @@ function ignoreDirEnt({ to }: LinkDirection) {
   };
 }
 
-function createFolder({ to }: LinkDirection, options: LinkOptions) {
+function createFolder({ to, dryRun }: LinkOptions) {
   return async (): Promise<LinkedFiles> => {
-    if (!options.dryRun) await ensureDir(to);
+    if (!dryRun) await ensureDir(to);
     return linkedFilesFactory({
       linked: [{ name: to, type: FileType.DIR }],
     });
   };
 }
 
-function linkFile({ to, from }: LinkDirection, options: LinkOptions) {
+function linkFile({ to, from, dryRun }: LinkOptions) {
   return async (dirent: Dirent): Promise<LinkedFiles> => {
     if (await pathExists(path(to))) {
       return linkedFilesFactory({
@@ -85,7 +81,7 @@ function linkFile({ to, from }: LinkDirection, options: LinkOptions) {
       });
     }
 
-    if (!options.dryRun) await ensureSymlink(path(from), path(to));
+    if (!dryRun) await ensureSymlink(path(from), path(to));
 
     return linkedFilesFactory({
       linked: [{ name: path(to), type: FileType.FILE }],

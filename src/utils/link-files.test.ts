@@ -1,7 +1,4 @@
-import linkFilesInDirRecursively, {
-  LinkDirection,
-  LinkOptions,
-} from './link-files';
+import linkFilesInDirRecursively, { LinkOptions } from './link-files';
 import { LinkedFiles, getFileNames } from './linked-files';
 import { pathExistsSync, readFileSync, lstatSync } from 'fs-extra';
 import { join } from 'path';
@@ -11,21 +8,22 @@ describe('LinkDotfiles', () => {
   let res: LinkedFiles;
   let from = 'tmp';
   let to = 'target';
-  let options: LinkOptions = {};
+  let dryRun: boolean | undefined = undefined;
 
   beforeEach(async () => {
     await copyFixturesToCleanTempFolder();
     await addFoldersAndFilesThatAlreadyExist();
-    const linkDirection: LinkDirection = {
+    const linkDirection: LinkOptions = {
+      dryRun,
       from: join(process.cwd(), from),
       to: join(process.cwd(), to),
     };
-    res = await linkFilesInDirRecursively(linkDirection, options)();
-  });
+    res = await linkFilesInDirRecursively(linkDirection)();
+  }, 500);
 
   afterEach(async () => {
     await cleanupAllCreatedFiles();
-  });
+  }, 500);
 
   const path = (pathLike: string): string => join(process.cwd(), to, pathLike);
 
@@ -33,9 +31,7 @@ describe('LinkDotfiles', () => {
     beforeAll(() => {
       from = 'tmp';
       to = 'target';
-      options = {
-        dryRun: true,
-      };
+      dryRun = true;
     });
 
     it('does not create any files or links', () => {
@@ -65,9 +61,7 @@ describe('LinkDotfiles', () => {
     beforeAll(() => {
       from = 'tmp';
       to = 'ignore';
-      options = {
-        dryRun: false,
-      };
+      dryRun = false;
     });
 
     it('does not create it or symlink it', () => {
@@ -86,9 +80,7 @@ describe('LinkDotfiles', () => {
     beforeAll(() => {
       from = 'tmp';
       to = 'target';
-      options = {
-        dryRun: false,
-      };
+      dryRun = false;
     });
 
     describe('when subject is a file', () => {
